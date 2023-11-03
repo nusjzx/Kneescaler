@@ -1,5 +1,8 @@
+import time
+
 from kneed import KneeLocator
 
+from metrics_collector import get_throughput, get_latency
 
 class Kneescaler:
     def __init__(self, CPU_threshold, thr_threshold, e_threshold, r_cur, CPU_cur, max_instances):
@@ -17,6 +20,7 @@ class Kneescaler:
         self.max_instances = max_instances
 
     def find_closest_throughput(self):
+        t_closest = float("inf")
         for t in self.K:
             if abs(self.t_cur - t) < self.f_min:
                 self.f_min = abs(self.t_cur - t)
@@ -27,18 +31,18 @@ class Kneescaler:
     def scale_up(self):
         t_closest = self.find_closest_throughput()
         if abs(self.t_cur - t_closest) < self.thr_threshold:
-            self.r_cur = self.K[t_closest]
+            self.update_r_cur(self.K[t_closest])
         else:
             if self.e_cur < self.e_threshold:
                 k = self.find_knee(self.r_cur + 1, min(self.r_cur + self.max_instances / 2, self.max_instances))
             else:
                 k = self.find_knee(self.r_cur + 1, self.max_instances)
             self.K[self.t_cur] = k
-            self.r_cur = k
+            self.update_r_cur(k)
 
     def scale_down(self):
         t_closest = self.find_closest_throughput()
-        self.r_cur = self.K[t_closest]
+        self.update_r_cur(self.K[t_closest])
 
     def update_cur_data(self, t_cur, e_cur, CPU_cur):
         self.t_cur = t_cur
@@ -50,7 +54,6 @@ class Kneescaler:
             self.scale_up()
         if (self.CPU_pre - self.CPU_cur) / self.CPU_pre > self.CPU_threshold:
             self.scale_down()
-
 
     def find_knee(self, bl, br):
         direction = 'L'
@@ -87,5 +90,13 @@ class Kneescaler:
 
 
     def run_trials(self, c):
+        self.update_r_cur(c)
+        time.sleep(5)
+        t_trial = get_throughput()
+        latency_trial = get_latency()
         # run trials and return
-        return 0
+        return t_trial/latency_trial
+
+    def update_r_cur(self, r_cur):
+        self.r_cur = r_cur
+        #update in k8s as well
