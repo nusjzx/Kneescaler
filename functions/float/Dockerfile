@@ -2,10 +2,10 @@
 FROM python:3.8-slim
 
 # Set the working directory to /mnt/ustorage/ce7490_P1
-WORKDIR /mnt/ustorage/ce7490_P1
+WORKDIR /app
 
 # Copy the current directory contents into the container at /mnt/ustorage/ce7490_P1
-COPY . /mnt/ustorage/ce7490_P1
+COPY /app/ .
 
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt
