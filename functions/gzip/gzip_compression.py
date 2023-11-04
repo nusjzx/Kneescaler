@@ -1,10 +1,18 @@
 import gzip
 import shutil
 from flask import Flask, request, jsonify
+from prometheus_flask_exporter import PrometheusMetrics
 
-app = Flask(__name)
+app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
-@app.route('/gzip_compression', methods=['POST'])
+by_path_counter = metrics.counter(
+    'by_path_counter', 'Request count by request paths',
+    labels={'status': lambda r: r.status_code, 'path': lambda r: request.path}
+)
+
+@app.route('/gzip_compression', methods=['GET'])
+@by_path_counter
 def gzip_compression():
     try:
         data = request.get_json()
