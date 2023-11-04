@@ -1,8 +1,8 @@
 FROM python:3.8-slim
 
-WORKDIR /mnt/ustorage/ce7490_P1
+WORKDIR /app
 
-COPY . /mnt/ustorage/ce7490_P1
+COPY . /app/ .
 
 EXPOSE 8080
 
