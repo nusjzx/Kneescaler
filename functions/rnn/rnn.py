@@ -1,12 +1,23 @@
 import tensorflow as tf
+from flask import Flask, request, jsonify
 
-def rnn(event, context):
+app = Flask(__name)
 
-    model = tf.keras.models.load_model('model.h5')
+model = tf.keras.models.load_model('model.h5')  # Load the model
 
-    inference_result = model.predict(input_data)
+@app.route('/rnn', methods=['POST'])
+def rnn():
+    try:
+        data = request.get_json()
+        input_data = data['input_data']
 
-    return {"inference_result": inference_result.tolist()}  # Convert to a list for JSON serialization
+        inference_result = model.predict(input_data)
 
-# Example usage:
-# result = rnn('input_data', 'context')
+        return jsonify({"inference_result": inference_result.tolist()})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+
+# http://<service-ip>:8080/rnn
