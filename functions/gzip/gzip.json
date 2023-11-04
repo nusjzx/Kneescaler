@@ -1,0 +1,5 @@
+{
+  "input_file": "your_input_file.txt",  // Replace with the actual input file path
+  "output_file": "your_output_file.gz",  // Replace with the desired output file path
+  "num_iterations": 10  // Replace with the desired number of iterations
+}
