@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: float-operation
+spec:
+  selector:
+    app: float-operation
+  ports:
+  - protocol: "TCP"
+    port: 6000
+    targetPort: 8080
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: float-operation
+spec:
+  selector:
+    matchLabels:
+      app: float-operation
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: float-operation
+    spec:
+      containers:
+      - name: float-operation
+        image: float:latest
+        ports:
+        - containerPort: 8080

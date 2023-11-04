@@ -1,11 +1,10 @@
 from flask import Flask, request, jsonify
 
-app = Flask(__name)
+app = Flask(__name__)
 
-@app.route('/float_operation', methods=['POST'])
+@app.route('/float_operation', methods=['GET'])
 def float_operation():
     try:
-        data = request.get_json()
         result = 0.0
         for i in range(1000000):
             result += i / 3.14159265359
