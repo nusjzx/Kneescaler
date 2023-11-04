@@ -1,2 +1,3 @@
 tensorflow
 flask
+prometheus_flask_exporter
