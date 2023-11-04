@@ -1,22 +1,34 @@
 import cv2
 import numpy as np
+from flask import Flask, request, jsonify
 
-def img_proc(event, context):
-    image = cv2.imread('input_image.jpg')
-  
-    if image is not None:
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+app = Flask(__name)
 
-        blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
+@app.route('/img_proc', methods=['POST'])
+def img_proc():
+    try:
+        image = cv2.imread('input_image_path')
+        
+        if image is not None:
+            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Perform edge detection using Canny
-        edges = cv2.Canny(blurred_image, 50, 150)
+            blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
 
-        # Create a new image that combines the original and the edges
-        result_image = np.hstack((image, cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)))
-      
-        cv2.imwrite('result_image.jpg', result_image)
+            # Perform edge detection using Canny
+            edges = cv2.Canny(blurred_image, 50, 150)
 
-        return {"message": "Image processing completed."}
-    else:
-        return {"error": "Failed to load the image."}
+            # Create a new image that combines the original and the edges
+            result_image = np.hstack((image, cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR))
+            
+            cv2.imwrite('result_image.jpg', result_image)
+
+            return jsonify({"message": "Image processing completed."})
+        else:
+            return jsonify({"error": "Failed to load the image."})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+
+# POST request using http://<your-service-ip>:8080/img_proc
